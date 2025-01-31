@@ -12,6 +12,17 @@ public class PlayerController : MonoBehaviour
 
     public float movSpeed;
     bool isWalk;
+    bool isLookLeft;
+
+
+    private Transform posDir;
+    private Transform posEsq;
+    private Transform head;
+
+    public Transform boxColliderEsq;
+    public Transform boxColliderDir;
+    public Transform boxColliderHead;
+
     void Start()
     {
         m_Rigidbody = GetComponent<Rigidbody>();
@@ -22,6 +33,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         UpdateAnimation();
+        LookPlayer();
+        UpdadeBoxColliders();
     }
 
     private void FixedUpdate()
@@ -46,6 +59,71 @@ public class PlayerController : MonoBehaviour
         m_Animator.SetBool("IsWalk", isWalk);
     }
 
+    void LookPlayer()
+    {
+        if(newImput.x > 0 && isLookLeft)
+        {
+            Flip();
+        }
+        else if(newImput.x < 0 && isLookLeft == false)
+        {
+            Flip();
+        }
+    }
+
+    void Flip()
+    {
+        isLookLeft = !isLookLeft;
+
+        switch(isLookLeft)
+        {
+            case true:
+                transform.eulerAngles = new Vector3(0, 180f, 0);
+                break;
+            
+            case false:
+                transform.eulerAngles = new Vector3(0, 0, 0);
+                break;
+        }
+    }
+
+    void Jump(bool isPressed)
+    {
+
+    }
+
+    void Atack()
+    {
+        if (CombatSystem.combatSystem)
+        {
+            CombatSystem.combatSystem.ComboAttack();
+        }
+
+        //print("Player atacando");
+
+    }
+
+    void AtackSpecial()
+    {
+
+    }
+
+    void UpdadeBoxColliders()
+    {
+        posDir = m_Animator.GetBoneTransform(HumanBodyBones.RightHand);
+        boxColliderDir.position = posDir.position;
+
+        posEsq = m_Animator.GetBoneTransform(HumanBodyBones.LeftHand);
+        boxColliderEsq.position = posEsq.position;
+
+       head = m_Animator.GetBoneTransform(HumanBodyBones.Head);
+       boxColliderHead.position = head.position;
+    }
+
+
+
+
+
     #endregion
 
 
@@ -59,17 +137,32 @@ public class PlayerController : MonoBehaviour
 
     public void JumpPlayer(InputAction.CallbackContext value)
     {
+        if(value.started) //APERTOU O BOTÃO
+        {
+            Jump(true);
+        }
 
+        if(value.canceled)
+        {
+            Jump(false);
+        }
     }
 
     public void AtackPlayer(InputAction.CallbackContext value)
     {
+        if(value.started) //APERTOU O BOTÃO
+        {
+            Atack();    
+        }
 
     }
 
     public void AtackSpecialPlayer(InputAction.CallbackContext value)
     {
-
+        if(value.started)//APERTOU O BOTÃO
+        {
+            AtackSpecial();
+        }
     }
 
     #endregion
